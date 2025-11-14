@@ -5,19 +5,23 @@ from ollama import chat
 
 
 # --- Prompt construction ---
-def build_relationship_prompt(chunk: str) -> str:
+def build_relationship_prompt(chunk: str, people: Dict) -> str:
     """
     Constructs the prompt for relationship extraction.
     """
     return (
-        "In the following text extract names and relationships of people:\n\n"
+        "In the following text extract the family or romantic relationships of people in the list. If no relationship is"
+        "stated, implied or can logically be inferred, return no relationship."
+        f"{people.keys()}\n\n"
         f"{chunk}"
     )
 
 
 # --- Main extraction function ---
-def extract_relationships(chunk: str, model_name: str = "gemma3") -> Dict[str, Any]:
-    prompt = build_relationship_prompt(chunk)
+def extract_relationships(chunk: str, people: Dict, model_name: str = "gemma3") -> Dict[str, Any]:
+    if len(people) < 2:
+        return {}
+    prompt = build_relationship_prompt(chunk, people)
     logger.info(f"Prompt for LLM: {prompt}")
     llm = chat(model=model_name, messages=[
         {"role": "user", "content": prompt}

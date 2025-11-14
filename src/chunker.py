@@ -1,4 +1,4 @@
-def chunk_book(text: str, chunk_size: int = 30, overlap: int = 10):
+def chunk_book(text: str, chunk_size: int = 300, overlap: int = 100):
     """
     Splits the input text into overlapping chunks of words.
     Args:
