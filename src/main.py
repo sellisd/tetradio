@@ -9,17 +9,19 @@ def main():
         text = f.read()
     chunks = chunk_book(text)
     logger.info(f"Generated {len(chunks)} chunks.")
-    # Extract relationships from each chunk
-    results = []
+    # Extract relationships/entities from each chunk
+    person = {}
+    from llm_interface import extract_relationships, extract_entities_spacy
     for chunk in chunks:
-        logger.info("Extracting relationships from chunk...")
-        logger.info(f"Chunk content: {chunk}")  # Log first 100 characters of the chunk
-        extract_relationships(chunk)
-        results.append(extract_relationships(chunk))
-        logger.info("Extraction complete.")
-
-    logger.info(f"Extracted relationships from {len(results)} chunks.")
+        logger.info("Extracting from chunk...")
+        result = extract_entities_spacy(chunk)
+        # result = extract_relationships(chunk)
+        logger.info(f"Extraction result: {result}")
+        person.update(result)
+    results = person
+    logger.info(f"Extracted results from {len(results)} chunks.")
     print(results)
 
 if __name__ == "__main__":
+    # Change method to "spacy" to use spaCy extractor
     main()
