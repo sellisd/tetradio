@@ -1,0 +1,17 @@
+[project]
+name = "genealogical-tree-extraction"
+version = "0.1.0"
+description = "Minimal project for genealogical tree extraction"
+dependencies = [
+    "loguru>=0.7.3",
+    "ollama>=0.6.1",
+    "uv",
+]
+[[project.authors]]
+name = "Diamantis Sellis"
+email = "sellisd@gmail.com"
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
