@@ -1,22 +1,13 @@
-def chunk_book(text: str, chunk_size: int = 300, overlap: int = 100):
+from spacy.lang.en import English
+
+def chunk_book(text: str):
     """
-    Splits the input text into overlapping chunks of words.
+    Splits the input text into sentences.
     Args:
         text (str): The full text.
-        chunk_size (int): Number of words per chunk.
-        overlap (int): Number of words to overlap between chunks.
     Returns:
-        List[str]: List of text chunks.
+        Generator object.
     """
-    words = text.split()
-    chunks = []
-    start = 0
-    total_words = len(words)
-    while start < total_words:
-        end = min(start + chunk_size, total_words)
-        chunk = " ".join(words[start:end])
-        chunks.append(chunk)
-        if end == total_words:
-            break
-        start = max(end - overlap, 0)
-    return chunks
+    nlp = English()
+    nlp.add_pipe("sentencizer")
+    return nlp(text).sents

@@ -1,27 +1,33 @@
 from loguru import logger
-from chunker import chunk_book
-from llm_interface import extract_relationships, extract_entities_spacy
-
+import spacy
+from llm_interface import extract_relationships  # Import the function
 
 def main():
-    # Chunk the sample book
+    # Load text and spaCy model
     with open("src/sample_text.txt", "r", encoding="utf-8") as f:
         text = f.read()
-    chunks = chunk_book(text, chunk_size=30, overlap=10)
-    logger.info(f"Generated {len(chunks)} chunks.")
-    # Extract relationships/entities from each chunk
-    person = {}
-    for chunk in chunks:
-        logger.info("Extracting from chunk...")
-        result = extract_entities_spacy(chunk)
-        relationship = extract_relationships(chunk, result)
-        print(relationship)
-        logger.info(f"Extraction result: {result}")
-        person.update(result)
-    results = person
-    logger.info(f"Extracted results from {len(results)} chunks.")
-    print(results)
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(text)
+    [entity for entity in doc.ents if entity.label_ == "PERSON"]
+
+    # Split text into paragraphs
+    paragraphs = [p for p in text.split('\n\n') if p.strip()]
+
+    results = []
+
+    for paragraph in paragraphs:
+        logger.info(f"Paragraph: {paragraph}")
+
+        relationships = extract_relationships(paragraph)
+        logger.info(f"Relationships: {relationships}")
+
+    return results
 
 if __name__ == "__main__":
-    # Change method to "spacy" to use spaCy extractor
-    main()
+    output = main()
+    for item in output:
+        print(f"Paragraph: {item['paragraph']}")
+        print(f"Entities: {item['entities']}")
+        if "relationships" in item:
+            print(f"Relationships: {item['relationships']}")
+        print()

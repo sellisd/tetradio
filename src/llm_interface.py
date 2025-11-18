@@ -2,26 +2,25 @@
 from loguru import logger
 from typing import Dict, Any
 from ollama import chat
-
+import spacy
 
 # --- Prompt construction ---
-def build_relationship_prompt(chunk: str, people: Dict) -> str:
+def build_relationship_prompt(chunk: str) -> str:
     """
     Constructs the prompt for relationship extraction.
     """
     return (
-        "In the following text extract the family or romantic relationships of people in the list. If no relationship is"
+        "In the following text extract the family or romantic relationships of people mentioned. If no relationship is"
         "stated, implied or can logically be inferred, return no relationship."
-        f"{people.keys()}\n\n"
+        "Return all pairwise relationships following the format: 'PersonA : PersonB : Relationship of PersonA to PersonB'"
+        "for example 'Natalia : Orion : mother' to express that Natalia is the mother of Orion.\n\n"
         f"{chunk}"
     )
 
 
 # --- Main extraction function ---
-def extract_relationships(chunk: str, people: Dict, model_name: str = "gemma3") -> Dict[str, Any]:
-    if len(people) < 2:
-        return {}
-    prompt = build_relationship_prompt(chunk, people)
+def extract_relationships(chunk: str, model_name: str = "gemma3") -> Dict[str, Any]:
+    prompt = build_relationship_prompt(chunk)
     logger.info(f"Prompt for LLM: {prompt}")
     llm = chat(model=model_name, messages=[
         {"role": "user", "content": prompt}
@@ -29,17 +28,11 @@ def extract_relationships(chunk: str, people: Dict, model_name: str = "gemma3") 
     logger.info(f"LLM response: {llm.message.content}")
     return llm.message.content
 
-# --- spaCy-based entity extractor ---
-def extract_entities_spacy(chunk: str) -> Dict[str, Any]:
-    """
-    Extracts named entities (PERSON, ORG, etc.) using spaCy.
-    Returns a dict with entity type as key and list of entities as value.
-    """
-    import spacy
-    nlp = spacy.load("en_core_web_sm")
-    doc = nlp(chunk)
-    entities = {}
-    for ent in doc.ents:
-        if ent.label_ in ["PERSON"]:
-            entities[ent.text] = 1
-    return entities
+def parse_return_string(response: str):
+    relationships = []
+    for line in response.strip().splitlines():
+        parts = [p.strip() for p in line.split(":")]
+        if len(parts) == 3:
+            person_a, person_b, relationship = parts
+            relationships.append((person_a, person_b, relationship))
+    return relationships
