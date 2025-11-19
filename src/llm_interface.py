@@ -21,12 +21,12 @@ def build_relationship_prompt(chunk: str) -> str:
 # --- Main extraction function ---
 def extract_relationships(chunk: str, model_name: str = "gemma3") -> Dict[str, Any]:
     prompt = build_relationship_prompt(chunk)
-    logger.info(f"Prompt for LLM: {prompt}")
     llm = chat(model=model_name, messages=[
         {"role": "user", "content": prompt}
     ])
-    logger.info(f"LLM response: {llm.message.content}")
-    return llm.message.content
+    response = parse_return_string( llm.message.content)
+    logger.info(f"LLM Response: {response}")
+    return response
 
 def parse_return_string(response: str):
     relationships = []
