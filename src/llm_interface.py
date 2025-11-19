@@ -17,7 +17,7 @@ def build_relationship_prompt(chunk: str, current_relationships) -> str:
             "Existing relationships:\n"
             f"{current_relationships}\n"
             "When extracting relationships, consider:\n"
-            "- Do not repeat relationships already listed in the knowledge graph.\n"
+            "- If a relationship already exists in the knowledge graph do not repeat it in the output\n"
             "- Use existing relationships to infer indirect connections if logically possible.\n"
             "- Do NOT include any explanations, headers or extra text in your response.\n"
             "Take into account the following existing relationships in the knowledge graph:\n"
@@ -28,10 +28,11 @@ def build_relationship_prompt(chunk: str, current_relationships) -> str:
         "Instructions:\n"
         "- If a relationship is stated, implied, or can logically be inferred, include it.\n"
         "- If no relationships are found, return an empty string\n"
-        "- For each relationship, use the format:\n"
-        "  PersonA : PersonB : Relationship of PersonA to PersonB\n"
+        "- Do NOT include vague or null relationships like 'None' or 'unknown'.\n"
+        "- Report one relationship per line with the format PersonA : PersonB : Relationship of PersonA to PersonB\n"
         "Example:\n"
         "  Natalia : Orion : mother\n"
+        "  Natalia : Leila : daughter\n"
         f"{relationship_context}"
         "\nText:\n"
         f"{chunk}"
@@ -43,7 +44,7 @@ def build_relationship_prompt(chunk: str, current_relationships) -> str:
 def extract_relationships(chunk: str, current_relationships: List[str], model_name: str = "gemma3") -> Dict[str, Any]:
     logger.info(f"Extracting relationships from text chunk: '{chunk[:50]} ... {chunk[-50:]}'")
     prompt = build_relationship_prompt(chunk, current_relationships)
-    #logger.info(f"Constructed Prompt: {prompt}")
+    logger.debug(f"Constructed Prompt: {prompt}")
     llm = chat(model=model_name, messages=[
         {"role": "user", "content": prompt}
     ])

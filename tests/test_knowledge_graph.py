@@ -5,6 +5,7 @@ def test_add_relationship():
     kg = KnowledgeGraph()
     # Add a relationship
     kg.add_relationship("Alice", "Bob", "parent")
+    assert kg.get_relationships() == ["Alice : Bob : parent"]
     edges = list(kg.G.edges)
     assert len(edges) == 1
     assert edges[0][0] == "Alice"
