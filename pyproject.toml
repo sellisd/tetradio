@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Minimal project for genealogical tree extraction"
 dependencies = [
     "loguru>=0.7.3",
+    "networkx>=3.5",
     "ollama>=0.6.1",
+    "pydot>=4.0.1",
     "pytest>=9.0.1",
     "spacy",
     "uv",
