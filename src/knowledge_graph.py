@@ -6,11 +6,14 @@ class KnowledgeGraph:
         self.G = nx.MultiDiGraph()
 
     def add_relationship(self, person_a, person_b, relationship):
+        logger.debug(f"Attempting to add relationship: {person_a} : {person_b} : {relationship}")
+        logger.debug(f"Current edges before addition: {list(self.G.edges(keys=True))}")
         if self.G.has_edge(person_a, person_b, relationship):
             logger.info(f"Edge already exists: {person_a} -[{relationship}]-> {person_b}")
         else:
             logger.info(f"Adding edge: {person_a} -[{relationship}]-> {person_b}")
             self.G.add_edge(person_a, person_b, relationship)
+            logger.debug(f"Current edges after addition: {list(self.G.edges(keys=True))}")
 
     def get_relationships(self):
         return [f"{n} : {v} : {e}" for n, v, e in self.G.edges]

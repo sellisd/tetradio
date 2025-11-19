@@ -29,10 +29,12 @@ def build_relationship_prompt(chunk: str, current_relationships) -> str:
         "- If a relationship is stated, implied, or can logically be inferred, include it.\n"
         "- If no relationships are found, return an empty string\n"
         "- Do NOT include vague or null relationships like 'None' or 'unknown'.\n"
+        "- Do NOT include relationships unless they are explicitly or implicitly mentioned in the text.\n"
         "- Report one relationship per line with the format PersonA : PersonB : Relationship of PersonA to PersonB\n"
         "Example:\n"
         "  Natalia : Orion : mother\n"
-        "  Natalia : Leila : daughter\n"
+        "  Orion : Leila : brother\n"
+        "  Leila : Natalia : daughter\n"
         f"{relationship_context}"
         "\nText:\n"
         f"{chunk}"
@@ -56,8 +58,12 @@ def parse_return_string(response: str):
     relationships = []
     for line in response.strip().splitlines():
         parts = [p.strip() for p in line.split(":")]
+        logger.debug(f"Parsing line: {line} -> {parts}")
         if len(parts) == 3:
             person_a, person_b, relationship = parts
+            logger.debug(f"Parsed relationship: {person_a} -> {person_b} ({relationship})")
             relationships.append((person_a, person_b, relationship))
+        else:
+            logger.warning(f"Line does not match expected format: {line}")
     logger.info(f"Extracted relationships: {relationships}")
     return relationships
