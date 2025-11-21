@@ -12,14 +12,16 @@ def split_paragraphs_sliding_window(text, window_size=2):
 
 def main():
     KG = KnowledgeGraph()
-    with open("src/sample_text.txt", "r") as file:
+    with open("data/test.txt", "r") as file:
         text = file.read()
         chunks = split_paragraphs_sliding_window(text, window_size=2)
-        for chunk in chunks:
+        for i, chunk in enumerate(chunks):
             current_relationships = KG.get_relationships()
-            triples = extract_relationships(chunk, current_relationships)
+            triples = extract_relationships(chunk, current_relationships, model_name="gemma3")
             for person_a, person_b, relationship in triples:
                 KG.add_relationship(person_a, person_b, relationship)
+            if i%5 == 0:
+                KG.save_dot_with_labels(f"knowledge_graph_step_{i}.dot")
     KG.save_dot_with_labels("knowledge_graph.dot")
 
 if __name__ == "__main__":
