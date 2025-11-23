@@ -1,23 +1,24 @@
+import sys
 from loguru import logger
-from llm_interface import extract_relationships
+from extractor import Extractor
 from knowledge_graph import KnowledgeGraph
+from chunker import split_paragraphs_sliding_window
 
-def split_paragraphs_sliding_window(text, window_size=2):
-    paragraphs = [p for p in text.split('\n\n') if p.strip()]
-    chunks = []
-    for i in range(len(paragraphs) - window_size + 1):
-        chunk = '\n\n'.join(paragraphs[i:i+window_size])
-        chunks.append(chunk)
-    return chunks
+logger.remove()
+logger.add("app.log", level="DEBUG", mode="w")
+logger.add(sys.stdout, level="INFO")
 
 def main():
     KG = KnowledgeGraph()
-    with open("data/test.txt", "r") as file:
+    with open("data/chapter_1.txt", "r") as file:
         text = file.read()
-        chunks = split_paragraphs_sliding_window(text, window_size=2)
+        chunks = split_paragraphs_sliding_window(text, window_size=3, min_chunk_length=4000)
         for i, chunk in enumerate(chunks):
-            current_relationships = KG.get_relationships()
-            triples = extract_relationships(chunk, current_relationships, model_name="gemma3")
+            logger.info(f"Processing chunk {i+1}/{len(chunks)}")
+            extractor = Extractor(chunk, model_name="gemma3")
+            logger.info(f"Extracting relationships from text chunk: '{chunk[:10]} ... {chunk[-10:]}'")
+            summary = extractor.summarize_relationships()
+            triples = extractor.postprocess_text_spacy(summary)
             for person_a, person_b, relationship in triples:
                 KG.add_relationship(person_a, person_b, relationship)
             if i%5 == 0:
