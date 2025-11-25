@@ -103,10 +103,10 @@ class Extractor:
                     logger.warning(f"Extracted names are not labeled as PERSON: {person_a}, {person_b}")
                     tripple = advanced_postprocess_text(first_sentence)
                     if tripple:
-                        relationships.append(advanced_postprocess_text(first_sentence))
+                        relationships.append(tripple+(quoted_text.strip(),))
             else:
                 logger.warning(f"No valid relationship found in sentence: {first_sentence}")
                 tripple = advanced_postprocess_text(first_sentence)
                 if tripple:
-                    relationships.append(advanced_postprocess_text(first_sentence))
+                    relationships.append(tripple+(quoted_text.strip(),))
         return relationships
