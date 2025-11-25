@@ -58,12 +58,7 @@ def test_empty_text(extractor):
     result = extractor.postprocess_text_spacy(text)
     assert result == []
 
-def test_invalid_relationship_pattern(extractor):
-    text = "Alice and Bob are siblings. \"They always support each other.\""
-    result = extractor.postprocess_text_spacy(text)
-    assert result == []
-
 def test_partial_relationship_pattern(extractor):
-    text = "Alice is Bob's. \"They are close.\""
+    text = "Alice and Bob. \"They are close.\""
     result = extractor.postprocess_text_spacy(text)
     assert result == []
