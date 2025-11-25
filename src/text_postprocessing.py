@@ -15,7 +15,9 @@ def advanced_postprocess_text(text: str) -> tuple:
         "- Only extract a relationship if the text explicitly describes a relationship between the two people.\n"
         "- If the input merely mentions two names without describing a relationship, return an empty string.\n"
         "- If the input does not describe a relationship, return an empty string.\n"
-        "- Do NOT return anything if there is no clear relationship described.\n\n"
+        "- Do NOT return anything if there is no clear relationship described.\n"
+        "- Do NOT infer or guess a relationship if it is not explicitly stated in the text.\n"
+        "- For example, if the input is just two names (e.g., 'Alice and Bob.'), return an empty string.\n\n"
         "Examples:\n"
         "Input: Alice is Bob's sister.\n"
         "Output: Alice : Bob : sister\n\n"
@@ -24,6 +26,8 @@ def advanced_postprocess_text(text: str) -> tuple:
         "Input: Alice : Bob : sister\n"
         "Output: Alice : Bob : sister\n"
         "Input: The weather is nice today.\n"
+        "Output: \n"
+        "Input: Alice and Bob.\n"
         "Output: \n\n"
         "Now, process the following text:\n"
         f"Input: {text}"
@@ -38,8 +42,13 @@ def advanced_postprocess_text(text: str) -> tuple:
     response = ()
     if len(parts) == 3 and all(parts):
         person_a, person_b, relationship = parts
-        logger.info(f"Parsed relationship: {person_a} -> {person_b} ({relationship})")
-        response = (person_a, person_b, relationship)
+        # Filter out "No relationship" or similar non-relationships
+        if relationship.strip().lower() in ["no relationship", "none", ""]:
+            logger.info(f"Filtered out non-relationship: {person_a} -> {person_b} ({relationship})")
+            response = ()
+        else:
+            logger.info(f"Parsed relationship: {person_a} -> {person_b} ({relationship})")
+            response = (person_a, person_b, relationship)
     else:
         logger.warning(f"Formatted line does not match expected format: {formatted_line}")
     return response  # Return empty tuple if format is incorrect
