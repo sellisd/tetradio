@@ -4,7 +4,7 @@ import re
 from loguru import logger
 from extractor import Extractor
 from knowledge_graph import KnowledgeGraph
-from chunker import split_paragraphs_sliding_window, split_text_by_sentence_chunks
+from chunker import split_text_by_sentence_chunks
 
 logger.remove()
 logger.add("app.log", level="DEBUG", mode="w")
