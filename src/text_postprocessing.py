@@ -7,7 +7,7 @@ def advanced_postprocess_text(text: str) -> tuple:
     """
     prompt = (
         "Task: Extract the relationship, if any, of two people from the following text and return it in the format:\n"
-        "'Person A : Person B : Relationship of person A with person B\n\n"
+        "'Person A : Person B : Relationship of person A with person B'\n\n"
         "Instructions:\n"
         "- Use the exact format above, separating each part with a colon and a space.\n"
         "- Use proper names for both Person A and Person B.\n"

@@ -10,7 +10,7 @@ logger.add(sys.stdout, level="INFO")
 
 def main():
     KG = KnowledgeGraph()
-    with open("data/chapter_1.txt", "r") as file:
+    with open("data/book.txt", "r") as file:
         text = file.read()
         chunks = split_paragraphs_sliding_window(text, window_size=3, min_chunk_length=4000)
         for i, chunk in enumerate(chunks):
@@ -19,7 +19,7 @@ def main():
             logger.info(f"Extracting relationships from text chunk: '{chunk[:10]} ... {chunk[-10:]}'")
             summary = extractor.summarize_relationships()
             triples = extractor.postprocess_text_spacy(summary)
-            for person_a, person_b, relationship in triples:
+            for person_a, person_b, relationship, quote in triples:
                 KG.add_relationship(person_a, person_b, relationship)
             if i%5 == 0:
                 KG.save_dot_with_labels(f"knowledge_graph_step_{i}.dot")
