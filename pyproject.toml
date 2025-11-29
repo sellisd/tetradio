@@ -3,6 +3,7 @@ name = "genealogical-tree-extraction"
 version = "0.1.0"
 description = "Minimal project for genealogical tree extraction"
 dependencies = [
+    "fire>=0.7.1",
     "loguru>=0.7.3",
     "networkx>=3.5",
     "ollama>=0.6.1",

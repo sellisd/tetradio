@@ -1,4 +1,5 @@
 import sys
+import fire
 from loguru import logger
 from extractor import Extractor
 from knowledge_graph import KnowledgeGraph
@@ -8,9 +9,9 @@ logger.remove()
 logger.add("app.log", level="DEBUG", mode="w")
 logger.add(sys.stdout, level="INFO")
 
-def main():
+def main(filename: str = "data/pg14838.txt"):
     KG = KnowledgeGraph()
-    with open("data/book.txt", "r") as file:
+    with open(filename, "r") as file:
         text = file.read()
         chunks = split_paragraphs_sliding_window(text, window_size=3, min_chunk_length=4000)
         for i, chunk in enumerate(chunks):
@@ -18,6 +19,7 @@ def main():
             extractor = Extractor(chunk, model_name="gemma3")
             logger.info(f"Extracting relationships from text chunk: '{chunk[:10]} ... {chunk[-10:]}'")
             summary = extractor.summarize_relationships()
+            logger.debug(f"Summary of relationships:\n{summary}")
             triples = extractor.postprocess_text_spacy(summary)
             for person_a, person_b, relationship, quote in triples:
                 KG.add_relationship(person_a, person_b, relationship)
@@ -26,4 +28,4 @@ def main():
     KG.save_dot_with_labels("knowledge_graph.dot")
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main())
