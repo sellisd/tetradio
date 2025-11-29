@@ -1,9 +1,10 @@
 import sys
 import fire
+import re
 from loguru import logger
 from extractor import Extractor
 from knowledge_graph import KnowledgeGraph
-from chunker import split_paragraphs_sliding_window
+from chunker import split_paragraphs_sliding_window, split_text_by_sentence_chunks
 
 logger.remove()
 logger.add("app.log", level="DEBUG", mode="w")
@@ -14,7 +15,8 @@ def main(filename: str = "data/pg14838.txt", model_name: str = "gemma3"):
     with open(filename, "r") as file:
         text = file.read()
         text = re.sub(r'[\u200B-\u200D\uFEFF]', '', text) # remove any problematic unicode chars
-        chunks = split_paragraphs_sliding_window(text, window_size=3, min_chunk_length=4000)
+        chunks = split_text_by_sentence_chunks(text, chunk_length=1000)
+
         for i, chunk in enumerate(chunks):
             logger.info(f"Processing chunk {i+1}/{len(chunks)}")
             extractor = Extractor(chunk, model_name)
@@ -29,4 +31,4 @@ def main(filename: str = "data/pg14838.txt", model_name: str = "gemma3"):
     KG.save_dot_with_labels("knowledge_graph.dot")
 
 if __name__ == "__main__":
-    fire.Fire(main())
+    fire.Fire(main)

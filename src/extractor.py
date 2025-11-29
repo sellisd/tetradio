@@ -20,10 +20,10 @@ class Extractor:
         Constructs the prompt for relationship extraction.
         """
         prompt = (
-            "Task: Extract family relationships between people mentioned in the text and quote the original source that supports this.\n"
+            "Task: Extract pairwise family relationships between characters or people mentioned in the text and quote the original source that supports this.\n"
             "Instructions:\n\n"
-            "1. Include any relationship that is explicitly stated in the text.\n"
-            "2. List each relationship on a separate line\n"
+            "1. List each relationship on a separate line in the form: Person A is Person B's relationship. 'Supporting quote from the text' \n"
+            "2. If a relationship involves multiple people output a separate line for each pairwise relationship.\n"
             "3. On the same line, after the relationship include a quoted text snippet from the original text that supports this relationship.\n"
             "4. If no relationships are present, return an empty string\n"
             "5. Do NOT include vague or unknown relationships such as \"unknown\", \"none\".\n"
@@ -32,11 +32,18 @@ class Extractor:
             "8. Standardize relationship terms to common kinship or family terms (e.g., mother, father, sister, brother, spouse, partner, fiancé, etc.).\n"
             "9. Include only human-to-human family connections.\n"
             "10. Do NOT include relationships to unnamed or collective entities.\n"
+            "11. Only return relationships, no additional commentary or explanation.\n\n"
             "Example Text:\n"
             "  Natalia is the mother of Orion. Orion has a sister named Leila.\n"
             "Example Output:\n"
             "  Natalia is Orion's mother. 'Natalia is the mother of Orion.'\n"
             "  Orion is Leila's brother 'Orion has a sister named Leila.'\n"
+            "Example Text:\n"
+            "  Alice has three sisters, Anne, Mary and Jane.\n"
+            "Example Output:\n"
+            "  Alice is Anne's sister. 'Alice has three sisters, Anne, Mary and Jane.'\n"
+            "  Alice is Mary's sister. 'Alice has three sisters, Anne, Mary and Jane.'\n"
+            "  Alice is Jane's sister. 'Alice has three sisters, Anne, Mary and Jane.'\n"
             "\nThe text from which the relationships are to be extracted follows.\n"
             "Text:\n"
             f"{self.source}"
@@ -44,6 +51,8 @@ class Extractor:
         response = chat(model=self.model_name, messages=[
             {"role": "user", "content": prompt}])
         response.message.content
+        logger.debug(f"Prompt for relationship extraction:\n{prompt}")
+        logger.debug(f"Response from model:\n{response.message.content}")
         return response.message.content
 
 
