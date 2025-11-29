@@ -9,14 +9,15 @@ logger.remove()
 logger.add("app.log", level="DEBUG", mode="w")
 logger.add(sys.stdout, level="INFO")
 
-def main(filename: str = "data/pg14838.txt"):
+def main(filename: str = "data/pg14838.txt", model_name: str = "gemma3"):
     KG = KnowledgeGraph()
     with open(filename, "r") as file:
         text = file.read()
+        text = re.sub(r'[\u200B-\u200D\uFEFF]', '', text) # remove any problematic unicode chars
         chunks = split_paragraphs_sliding_window(text, window_size=3, min_chunk_length=4000)
         for i, chunk in enumerate(chunks):
             logger.info(f"Processing chunk {i+1}/{len(chunks)}")
-            extractor = Extractor(chunk, model_name="gemma3")
+            extractor = Extractor(chunk, model_name)
             logger.info(f"Extracting relationships from text chunk: '{chunk[:10]} ... {chunk[-10:]}'")
             summary = extractor.summarize_relationships()
             logger.debug(f"Summary of relationships:\n{summary}")
